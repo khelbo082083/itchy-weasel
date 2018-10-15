@@ -1,0 +1,2362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>ANNOTATION TOOL V5</title>
+	<!-- Angular Js -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+	<!-- For Google Fonts -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Proxima Nova">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+	<style type="text/css">
+		body {
+			font-family: 'Proxima Nova';
+			font-size: 14px;
+			background-color: rgba(224, 216, 215, 0.5);
+		}
+
+		input, select, textarea {
+			width: 100%
+			/*box-sizing: border-box;*/
+		}
+
+		.labels {
+			font-weight: bold;
+			font-size: 14px;
+		}
+
+		#backoffice-tab {
+			background-color: rgba(66, 244, 134, 0.5);
+			padding-left: 5px;
+			padding-right: 5px;
+			padding-bottom: 10px;
+		}
+
+		#inbound-tab {
+			display: none;
+			background-color: rgba(247, 107, 64, 0.5);
+			padding-left: 5px;
+			padding-right: 5px;
+			padding-bottom: 10px;
+		}
+
+		#link-tab, #risk-tools-tab, #others-tab {
+			display: none;
+			background-color: none;
+			padding-left: 5px;
+			padding-right: 5px;
+			padding-bottom: 10px;
+		}
+
+		#notes-summary-section {
+			background-color: rgba(213, 220, 232, 0.5);
+			padding-right: 5px;
+			padding-left: 5px;
+			padding-bottom: 10px;
+		}
+
+		table {
+			width: 100%;
+		}
+
+		span {
+			font-size: 16px;
+		}
+
+		.modal-body {
+			user-select: all;
+		}
+
+		.ato-notes:hover, .tier-notes:hover, .travel-notes:hover {
+			user-select: all;
+			transition-duration: 0.3s;
+			background: linear-gradient(to bottom right, rgba(4,3,28,0.7), rgba(15,15,22,0.5));
+			color: white;
+			border-radius: 3px;
+		}
+
+		#myBtn {
+		  	display: none;
+		  	position: fixed;
+		  	bottom: 10px;
+		  	right: 10px;
+		  	z-index: 99;
+		  	font-size: 18px;
+		  	border: none;
+		  	outline: none;
+		  	background-color: red;
+		  	color: white;
+		  	cursor: pointer;
+		  	padding: 10px;
+		  	border-radius: 10px;
+		}
+
+		#myBtn:hover {
+		  	background-color: #555;
+		}
+
+		.topnav {
+		  	overflow: hidden;
+		  	background-color: #333;
+  			top: 0;
+  			width: 100%;
+  			z-index: 1;
+		}
+
+		.topnav a {
+		  	float: left;
+		  	color: #f2f2f2;
+		  	text-align: center;
+		  	padding: 5px 30px;
+		  	text-decoration: none;
+		  	font-size: 17px;
+		}
+
+		.topnav a:hover {
+		  	background-color: #4CAF50;
+		  	color: black;
+		}
+	</style>
+</head>
+<body onbeforeunload="return refreshPage ()">
+		<button onclick="topFunction()" id="myBtn" title="Go to top">BACK TO TOP</button>
+		<div class="topnav">
+  			<a href="#" id="backoffice-button">BACKOFFICE</a>
+  			<a href="#" id="inbound-button">INBOUND</a>
+		  	<a href="#" id="link-button">WIKI LINKS</a>
+  			<a href="#" id="others-button">OTHERS</a>
+  			<a href="#" id="risk-tools-button">TOOLS</a>
+		</div>
+		<table>
+			<tr>
+			<!-- FULL REVIEW TAB / ALL SENDING COUNTRIES -->
+			<td style="width: 55%" valign="top">
+			<div id="backoffice-tab">
+				<label class="labels">SENDING<br>
+					<select id="sending-corridor" style="width: 200px" class="custom-select custom-select-sm mb-3">
+						<option value=""></option>
+						<option value="Sending from the USA.">USA</option>
+						<option value="Sending from Canada.">CANADA</option>
+						<option value="Sending from Australia.">AUSTRALIA</option>
+						<option value="Sending from the United Kingdom.">UK</option>
+						<option value="Sending from Sweden.">SWEDEN</option>
+						<option value="Sending from Spain.">SPAIN</option>
+						<option value="Sending from Germany.">GERMANY</option>
+						<option value="Sending from Italy.">ITALY</option>
+						<option value="Sending from Denmark.">DENMARK</option>
+						<option value="Sending from Norway.">NORWAY</option>
+						<option value="Sending from Finland.">FINLAND</option>
+						<option value="Sending from Belgium.">BELGIUM</option>
+						<option value="Sending from Austria.">AUSTRIA</option>
+						<option value="Sending from Ireland.">IRELAND</option>
+						<option value="Sending from the Netherlands.">NETHERLANDS</option>
+						<option value="Sending from England.">ENGLAND</option>
+						<option value="Sending from Scotland.">SCOTLAND</option>
+						<option value="Sending from Wales.">WALES</option>
+					</select></label>
+					<label class="labels">RECEIVING<br>
+					<select id="receiving-corridor" style="width: 200px" class="custom-select custom-select-sm mb-3">
+						<option value=""></option>
+						<option value="Receiving country is the Philippines.">PHILIPPINES</option>
+						<option value="Receiving country is India.">INDIA</option>
+						<option value="Receiving country is Mexico.">MEXICO</option>
+						<option value="Receiving country is Nigeria.">NIGERIA</option>
+						<option value="Receiving country is Vietnam.">VIETNAM</option>
+						<option value="Receiving country is Argentina.">ARGENTINA</option>
+						<option value="Receiving country is Bolivia.">BOLIVIA</option>
+						<option value="Receiving country is Brazil.">BRAZIL</option>
+						<option value="Receiving country is Chile.">CHILE</option>
+						<option value="Receiving country is Colombia.">COLOMBIA</option>
+						<option value="Receiving country is Costa Rica.">COSTA RICA</option>
+						<option value="Receiving country is Dominican Republic.">DOM REPUBLIC</option>
+						<option value="Receiving country is Ecuador.">ECUADOR</option>
+						<option value="Receiving country is El Salvador.">EL SALVADOR</option>
+						<option value="Receiving country is Guatemala.">GUATEMALA</option>
+						<option value="Receiving country is Honduras.">HONDURAS</option>
+						<option value="Receiving country is Nicaragua.">NICARAGUA</option>
+						<option value="Receiving country is Paraguay.">PARAGUAY</option>
+						<option value="Receiving country is Peru.">PERU</option>
+						<option value="Receiving country is Uruguay.">URUGUAY</option>
+						<option value="Receiving country is Pakistan.">PAKISTAN</option>
+						<option value="Receiving country is Kenya.">KENYA</option>
+						<option value="Receiving country is Ethiopia.">ETHIOPIA</option>
+						<option value="Receiving country is South Africa.">SOUTH AFRICA</option>
+						<option value="Receiving country is Morocco.">MOROCCO</option>
+						<option value="Receiving country is Rwanda.">RWANDA</option>
+						<option value="Receiving country is Senegal.">SENEGAL</option>
+						<option value="Receiving country is Tunisia.">TUNISIA</option>
+						<option value="Receiving country is Romania.">ROMANIA</option>
+						<option value="Receiving country is Panama.">PANAMA</option>
+					</select></label>
+				<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">KOUNT FLAGS</label>
+    				<input list="kount-rule-list" id="kount-rule" class="form-control form-control-sm" style="font-weight: bold">
+    				<datalist id="kount-rule-list">
+    					<option value="No Kount Flag. Working on WCR.">
+    					<option value="No Kount Flag. Working on [tier cases/provisional] transactions.">
+    				</datalist>
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">DVID & IP ADDRESS</label>
+      				<input list="dvid-ipad-list" id="dvid-ipad-info" class="form-control form-control-sm" style="font-weight: bold">
+      				<datalist id="dvid-ipad-list">
+					    <option value="Uses known DVID and known IPAD.">
+					    <option value="Uses new DVID and new IPAD.">
+					    <option value="Uses known DVID and new IPAD">
+					    <option value="Uses new DVID and known IPAD">
+					</datalist>
+    			</div>
+				<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">RECEIVER INFO</label>
+      				<input list="receiver-info-list" id="receiver-information" class="form-control form-control-sm" style="font-weight: bold">
+    				<datalist id="receiver-info-list">
+    					<option value="Sending to self/own account.">
+    					<option value="Sending to known receiver.">
+    					<option value="Sending to new receiver. No recipient number registered.">
+					    <option value="Sending to new receiver with newly registered phone number.">
+					    <option value="Sending known receiver with known registered phone number.">
+					    <option value="Sending to known receiver with newly registered phone number.">
+					    <option value="Sending to new receiver with known registered phone number.">
+					</datalist>
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">KYC STATUS</label>
+      				<input list="kyc-status-list" id="kyc-status" class="form-control form-control-sm" style="font-weight: bold">
+    				<datalist id="kyc-status-list">
+					    <option value="KYC passed electronically.">
+					    <option value="KYC passed manually.">
+					    <option value="KYC passed manually [Seafarer Customer].">
+					    <option value="PARTIALLY VERIFIED [Name + Address].">
+					    <option value="PARTIALLY VERIFIED [Name + DOB].">
+					    <option value="KYC status softfailed.">
+					    <option value="KYC status hardfailed.">
+					    <option value="KYC passed via Out-Of-Wallet Questions [OOW].">
+					    <option value="KYC status is in review.">
+					    <option value="KYC status is not checked.">
+					    <option value="Enhanced KYC on pending status.">
+					</datalist>
+    			</div>
+    			<br>
+    			<div class="input-group mb-3 input-group-sm">
+      				<div class="input-group-prepend">
+        				<span class="input-group-text">SIFT SCORE</span>
+      				</div>
+      				<input type="number" class="form-control" id="sift-score" max="100" style="font-weight: bold">
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">CUSTOMER TYPE</label>
+      				<input list="customer-type-list" id="customer-type" class="form-control form-control-sm" style="font-weight: bold">
+    				<datalist id="customer-type-list">
+					    <option value="New customer/sender.">
+					    <option value="Repeat customer/sender.">
+					    <option value="Less than 30 days old account with pending transaction(s).">
+					    <option value="Less than 30 days old account with completed transaction(s).">
+					    <option value="Less than 30 days old account with no completed transaction(s).">
+					    <option value="Greater than 30 days old account with pending transaction(s)">
+					    <option value="Greater than 30 days old account with completed transaction(s)">
+					    <option value="Greater than 30 days old account with no completed transaction(s)">
+					</datalist>
+    			</div>
+    			<div>
+        			<label class="labels" style="margin-bottom: 0; margin-top: 0;">REGISTERED EMAIL ADDRESS</label>
+      				<input list="email-address-list" id="email-address" class="form-control form-control-sm" style="font-weight: bold">
+      				<datalist id="email-address-list">
+      					<option value="Email is name derived and has been active since [enter_email_age].">
+      					<option value="Newly created email address. [Is/Not] Name derived. Uses a [risky/not risky] domain.">
+      					<option value="Active email address registered. [Is/Not] name derived. Uses a [risky/not risky] domain.">
+      				</datalist>
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">PHONE NUMBER REGISTERED</label>
+      				<input list="phone-number-list" id="phone-registered" class="form-control form-control-sm" style="font-weight: bold">
+    				<datalist id="phone-number-list">
+					    <option value="Registered phone number is verified.">
+					    <option value="Mobile number registered to sender.">
+					    <option value="Mobile number not registered to sender.">
+					    <option value="Landline number registered to sender.">
+					    <option value="Landline number not registered to sender.">
+					    <option value="Registered number is VoIP.">
+					    <option value="Landline number registered to a business.">
+					    <option value="Mobile number registered to a business.">
+					    <option value="Number registered is unknown.">
+					</datalist>
+    			</div>
+    			<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">ID DOCUMENT PROVIDED</label>
+      				<input list="id-document-list" id="id-document" class="form-control form-control-sm" style="font-weight: bold">
+      				<datalist id="id-document-list">
+      					<option value="[Type_Of_ID] provided [matching/not matching] account name and DOB">
+      					<option value="[Type_Of_ID] provided is invalid due to [Provide_Details_Why].">
+      				</datalist>
+    			</div>
+    			<div>
+      				<label class="labels" style="margin-bottom: 0; margin-top: 0;">POA DOCUMENT PROVIDED</label>
+      				<input list="poa-document-list" id="poa-document" class="form-control form-control-sm" style="font-weight: bold">
+      				<datalist id="poa-document-list">
+      					<option value="[Type_Of_POA] provided [matching/not matching] account name and address.">
+      					<option value="[Type_Of_POA] provided is invalid due to [Provide_Details_Why].">
+      				</datalist>
+    			</div>
+    			<div>
+      				<label class="labels" style="margin-bottom: 0; margin-top: 0;">POF/SOF/POBR DOCUMENT PROVIDED</label>
+      				<input list="funds-source-list" id="funds-source" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="funds-source-list">
+      					<option value="[Type_Of_POF/SOF/POBR] provided showing [Provide_Additional_Details].">
+      					<option value="[Type_Of_POF/SOF/POBR] provided is invalid due to [Provide_Details_Why].">
+      				</datalist>
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">TRANSACTION HISTORY/PATTERN</label>
+      				<input list="transaction-details-list" id="transaction-details" class="form-control form-control-sm" style="font-weight: bold;">
+    				<datalist id="transaction-details-list">
+					    <option value="Sending [small/moderate/large] first time transaction (FTT).">
+					    <option value="Sending [small/moderate/large] amount transaction.">
+					    <option value="Sender has processed multiple transactions in a short period of time.">
+					    <option value="Sender has initiated provisional transaction.">
+					</datalist>
+    			</div>
+    			<div>
+      				<label class="labels" style="margin-bottom: 0; margin-top: 0;">PAYMENT PROFILE REGISTERED</label>
+      				<input list="payment-profile-list" id="payment-profile" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="payment-profile-list">
+      					<option value="Uses [debit/credit] card where payment information is [registered/not registered] to the sender's [name & address/name only/address only] with [AVS-X].">
+      					<option value="Uses [checking/savings] account where payment information is [registered/not registered] to the sender's [name & address/name only/address only].">
+      				</datalist>
+    			</div>
+    			<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">CUSTOMER ACCOUNT CHANGES</label>
+      				<input list="account-changes-list" id="account-changes" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="account-changes-list">
+      					<option value="Account [name & address/name/address] has been changed from [enter_details].">
+      					<option value="No suspicious account changes found on the customer account history.">
+      				</datalist>
+    			</div>
+    			<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">EXTERNAL LINKS</label>
+      				<input list="external-links-list" id="external-links" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="external-links-list">
+      					<option value="External link of sender found [Place_URL].">
+      					<option value="Unable to find any external link for [sender/recipient] due to [Provide_Details_Why].">
+      				</datalist>
+    			</div>
+    			<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">LINKED ACCOUNTS</label>
+      				<input list="linked-account-list" id="linked-account" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="linked-account-list">
+      					<option value="No linked accounts found.">
+      					<option value="Account is linked via [Provide_Additional_Details].">
+      				</datalist>
+    			</div>
+    			<div>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">RISK SUMMARY</label>
+      				<input list="risk-summary-list" id="risk-summary" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="risk-summary-list">
+      					<option value="IP logins show to be coming from [within/outside] the sending corridor using [residential/cellular/hosting/traveler/military/government/school] connection.">
+      					<option value="Multiple reset password captured for the last 7 days where IP logins are jumping from one place to another in a short period of time.">
+      					<option value="No geolocation issues found.">
+      				</datalist>
+    			</div>
+			</div>
+			<!-- For Inbound Assessment  -->
+			<div id="inbound-tab">
+				<label class="labels">SENDING<br>
+					<select id="inbound-sending-corridor" style="width: 200px" class="custom-select custom-select-sm mb-3">
+						<option value=""></option>
+						<option value="Sending from the USA.">USA</option>
+						<option value="Sending from Canada.">CANADA</option>
+						<option value="Sending from Australia.">AUSTRALIA</option>
+						<option value="Sending from the United Kingdom.">UK</option>
+						<option value="Sending from Sweden.">SWEDEN</option>
+						<option value="Sending from Spain.">SPAIN</option>
+						<option value="Sending from Germany.">GERMANY</option>
+						<option value="Sending from Italy.">ITALY</option>
+						<option value="Sending from Denmark.">DENMARK</option>
+						<option value="Sending from Norway.">NORWAY</option>
+						<option value="Sending from Finland.">FINLAND</option>
+						<option value="Sending from Belgium.">BELGIUM</option>
+						<option value="Sending from Austria.">AUSTRIA</option>
+						<option value="Sending from Ireland.">IRELAND</option>
+						<option value="Sending from the Netherlands.">NETHERLANDS</option>
+						<option value="Sending from England.">ENGLAND</option>
+						<option value="Sending from Scotland.">SCOTLAND</option>
+						<option value="Sending from Wales.">WALES</option>
+					</select></label>
+					<label class="labels">RECEIVING<br>
+					<select id="inbound-receiving-corridor" style="width: 200px" class="custom-select custom-select-sm mb-3">
+						<option value=""></option>
+						<option value="Receiving country is the Philippines.">PHILIPPINES</option>
+						<option value="Receiving country is India.">INDIA</option>
+						<option value="Receiving country is Mexico.">MEXICO</option>
+						<option value="Receiving country is Nigeria.">NIGERIA</option>
+						<option value="Receiving country is Vietnam.">VIETNAM</option>
+						<option value="Receiving country is Argentina.">ARGENTINA</option>
+						<option value="Receiving country is Bolivia.">BOLIVIA</option>
+						<option value="Receiving country is Brazil.">BRAZIL</option>
+						<option value="Receiving country is Chile.">CHILE</option>
+						<option value="Receiving country is Colombia.">COLOMBIA</option>
+						<option value="Receiving country is Costa Rica.">COSTA RICA</option>
+						<option value="Receiving country is Dominican Republic.">DOM REPUBLIC</option>
+						<option value="Receiving country is Ecuador.">ECUADOR</option>
+						<option value="Receiving country is El Salvador.">EL SALVADOR</option>
+						<option value="Receiving country is Guatemala.">GUATEMALA</option>
+						<option value="Receiving country is Honduras.">HONDURAS</option>
+						<option value="Receiving country is Nicaragua.">NICARAGUA</option>
+						<option value="Receiving country is Paraguay.">PARAGUAY</option>
+						<option value="Receiving country is Peru.">PERU</option>
+						<option value="Receiving country is Uruguay.">URUGUAY</option>
+						<option value="Receiving country is Pakistan.">PAKISTAN</option>
+						<option value="Receiving country is Kenya.">KENYA</option>
+						<option value="Receiving country is Ethiopia.">ETHIOPIA</option>
+						<option value="Receiving country is South Africa.">SOUTH AFRICA</option>
+						<option value="Receiving country is Morocco.">MOROCCO</option>
+						<option value="Receiving country is Rwanda.">RWANDA</option>
+						<option value="Receiving country is Senegal.">SENEGAL</option>
+						<option value="Receiving country is Tunisia.">TUNISIA</option>
+						<option value="Receiving country is Romania.">ROMANIA</option>
+						<option value="Receiving country is Panama.">PANAMA</option>
+					</select></label>
+				<br>
+				<div>
+      				<label class="labels" style="margin-bottom: 0; margin-top: 0;">KOUNT RULES FIRED</label>
+      				<input list="inbound-kount-rule-list" id="inbound-kount-rule" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="inbound-kount-rule-list">
+      					<option value="No Kount Flag. Working on WCR.">
+    					<option value="No Kount Flag. Working on provisional transactions.">
+      				</datalist>
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">QUEUE</label>
+      				<input list="inbound-queue-list" id="inbound-queue" class="form-control form-control-sm" style="font-weight: bold;">
+    				<datalist id="inbound-queue-list">
+					    <option value="Customer was endorsed via inContact.">
+					    <option value="Working on DESK CASES.">
+					    <option value="Transaction was captured on WCR queue.">
+					    <option value="Transaction was captured through Tier Case queue.">
+					    <option value="Transaction was captured while working on transaction reviews queue.">
+					    <option value="Customer called through SWITCHBOARD.">
+					    <option value="Working on a different queue assigned.">
+					</datalist>
+    			</div>
+    			<br>
+    			<div class="input-group mb-3 input-group-sm">
+      				<div class="input-group-prepend">
+        				<span class="input-group-text">WHO DID THE PREVIOUS REVIEW?</span>
+      				</div>
+      				<input type="text" class="form-control" id="inbound-first-touch" style="font-weight: bold;">
+    			</div>
+    			<div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">REASON FOR WCR?</label>
+      				<input list="inbound-nature-of-concern-list" id="inbound-nature-of-concern" class="form-control form-control-sm" style="font-weight: bold;">
+      				<datalist id="inbound-nature-of-concern-list">
+    					<option value="Customer called to follow up on the transaction (no review done yet).">
+					    <option value="Customer's account has a pending needed KYC Document(s) for verification.">
+					    <option value="Customer's account has a pending travel details verification.">
+					    <option value="Customer's account has a pending challenge questions.">
+					    <option value="Customer's account has a pending eKYC verification.">
+					    <option value="Customer's account has a pending BKYC verification.">
+					    <option value="Customer's account has a pending tier request.">
+					    <option value="Customer called reporting fraud on the account.">
+					    <option value="Customer called regarding the chargeback or account has a pending chargeback case.">
+					    <option value="Customer called reporting an unauthorized transaction(s) on their account [ATO].">
+					    <option value="Customer's transaction has a pending OFAC status.">
+					    <option value="Customer called to appeal for the suspension on the account.">
+					    <option value="Customer called to request for an update on the account.">
+					</datalist>
+    			</div>
+    			<br>
+    			<!-- Here is where you will need to provide and write your detailed observation about the transaction/account -->
+    			<div class="input-group mb-3 input-group-sm">
+      				<div class="input-group-prepend">
+        				<span class="input-group-text">SIFT SCORE</span>
+      				</div>
+      				<input type="number" class="form-control" id="inbound-sift-score" max="100" style="font-weight: bold">
+    			</div>
+      				<!-- DVID and IPAD Information -->
+      				<span id="dvid-ipad-delete" style="display: none;">
+      				<span class="labels">DVID & IPAD FINDINGS</span>
+					<textarea id="inbound-dvid-ipad-info" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+    				<!-- Sender Information -->
+    				<span id="sender-info-delete" style="display: none;">
+      				<span class="labels">SENDER FINDINGS</span>
+					<textarea id="inbound-sender-info" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Receiver Information -->
+					<span id="receiver-info-delete" style="display: none;">
+      				<span class="labels">RECEIVER FINDINGS</span>
+					<textarea id="inbound-receiver-info" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- External Links Information -->
+					<span id="external-links-delete" style="display: none;">
+      				<span class="labels">EXTERNAL LINKS</span>
+					<textarea id="inbound-external-links" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Email Address  -->
+					<span id="email-address-delete" style="display: none;">
+      				<span class="labels">REGISTERED EMAIL ADDRESS FINDINGS</span>
+					<textarea id="inbound-email" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Phone Number  -->
+					<span id="phone-number-delete" style="display: none;">
+      				<span class="labels">CALLER'S PHONE NUMBER FINDINGS</span>
+					<textarea id="inbound-phone" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Transaction Details  -->
+					<span id="transaction-details-delete" style="display: none;">
+      				<span class="labels">TRANSACTION HISTORY FINDINGS</span>
+					<textarea id="inbound-transaction-details" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Payment Profile  -->
+					<span id="payment-profile-delete" style="display: none;">
+      				<span class="labels">PAYMENT PROFILE FINDINGS</span>
+					<textarea id="inbound-payment-profile" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Account History  -->
+					<span id="account-history-delete" style="display: none;">
+					<span class="labels">ACCOUNT HISTORY FINDINGS</span>
+					<textarea id="inbound-account-history" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Linked Accounts  -->
+					<span id="linked-account-delete" style="display: none;">
+					<span class="labels">LINKED ACCOUNTS FINDINGS</span>
+					<textarea id="inbound-linked-accounts" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+					<!-- Risk Summary  -->
+					<span id="risk-summary-delete" style="display: none;">
+					<span class="labels">RISK SUMMARY FINDINGS</span>
+					<textarea id="inbound-risk-summary" rows="2" placeholder="Paste your observation here" class="form-control" style="font-size: 12px; color: black; font-weight: bold;"></textarea>
+					</span>
+			</div>
+			<!-- For Link Tab  -->
+			<div id="link-tab">
+				<!-- RISK BLOG -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="https://wiki.remitly.com/display/RPR/2017/06/02/Risk+Updates+Blog" target="_blank">RISK UPDATES BLOG</a></span>
+				<br>
+				<!-- HOW TO PROCESSES -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">HOW TO PROCESSES</a></span>
+				<ul>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How+to%3A+Evaluate+Proof+of+Funds+and+EDD+Responses" target="_blank">How to: Evaluate POF and EDD</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How+to%3A+Evaluate+Payment+Profile+Information+Mismatches" target="_blank">How to: Evaluate Payment Profile</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How-to%3A+Decline+Transactions+due+to+Mismatched+Billing+Information" target="_blank">How-to: Decline Transactions due to PP Mismatch</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How+to%3A+Complete+an+Overall+Risk+Review" target="_blank">How to: Complete an Overall Risk Review</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How+to%3A+Manually+tag+a+Seafarer+account" target="_blank">How to: Manually Tag a Seafarer Account</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/How+to%3A+Evaluate+Address+Verification+Service+%28AVS%29+Response+Codes" target="_blank">How to: Evaluate Address Verification Service (AVS) Response Codes</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/KBT/How-to%3A+Handle+Phishing+Attempts" target="_blank">How-to: Handle Phishing Attempts</a>
+					</li>
+				</ul>
+				<hr>
+				<!-- SENDING LIMIT PROCESSES -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">SENDING LIMIT PROCESSES</a></span>
+				<ul>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/US+Sending+Limits" target="_blank">US Sending Limits</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Canada+Sending+Limits" target="_blank">CA Sending Limits</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Australia+%28AUS%29+Sending+Limits" target="_blank">AUS Sending Limits</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/UK+and+EU+Sending+Limits" target="_blank">UK and EU Sending Limits</a>
+					</li>
+				</ul>
+				<hr>
+				<!-- KYC PROCESSES -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">KYC PROCESSES</a></span>
+				<ul>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/US+KYC+Process" target="_blank">US KYC Process</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Canada+KYC+Process" target="_blank">Canada KYC Process</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Australia+KYC+Process#AustraliaKYCProcess-HowtoConfirmAutomatedE-Verificationwascompleted" target="_blank">AUS KYC Process</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/UK+and+EU+KYC+Process" target="_blank">UK and EU KYC Process</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RFProd/Military+KYC+Policy" target="_blank">Military KYC Policy</a>
+					</li>
+				</ul>
+				<hr>
+				<!-- Other Helpful Links -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">OTHER WIKI LINKS</a></span>
+				<ul>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?title=Customer+Call+Guidelines&spaceKey=KBT" target="_blank">Customer Call Guidelines</a>
+						<span style="background-color: red; border-radius: 2px; color: white; padding-left: 4px; padding-right: 4px;" id="CS-guidelines-update">UPDATE!</span>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/KBT/CS+Endorsement+Process#CSEndorsementProcess-How-toTransferGuides" target="_blank">CS Endorsement Process</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?title=Guidelines+for+Sending+to+Business%2C+Commercial%2C+or+Charity&spaceKey=RPR" target="_blank">Guidelines for Sending to Business, Commercial, or Charity</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/KBT/CS+-+RISK+Transfer+Endorsement" target="_blank">CS - RISK Transfer Endorsement</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Challenge+Questions" target="_blank">Challenge Questions</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Fraud+and+Policy+Violation+Suspension+Appeals-+RI+Processes" target="_blank">Fraud and Policy Violation Suspension Appeals - RI Processes</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Customer+Reports+of+Fraud+and+ATO%3A+Risk+Investigator+Guidelines" target="_blank">Reporting Fraud and ATO</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Travel+Exception+Policy" target="_blank">Travel Exception Policy</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?pageId=12753692" target="_blank">When to Escalate to Compliance</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Risk+Investigation+Actions+and+Labels" target="_blank">Risk Actions and Labels</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?pageId=12747163&focusedCommentId=15958673#comment-15958673" target="_blank">Seafarer</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/RI+to+FSI+Transfer+Endorsement" target="_blank">RI to FSI Transfer Endorsement</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Cancel+without+Refund+SOP" target="_blank">Cancel without Refund SOP</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Fraud+Patterns" target="_blank">Fraud Patterns</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/KBT/Corridor+Sending+and+Receiving+Matrix" target="_blank">Corridor Sending and Receiving Matrix</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/display/RPR/Risk+Rule+Updates" target="_blank">Risk Rule Updates</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?title=Information+Security+and+Fraud+Awareness&spaceKey=KBT" target="_blank">Information Security and Fraud Awareness</a>
+					</li>
+					<li>
+						<a style="font-weight: bolder;" href="https://wiki.remitly.com/pages/viewpage.action?title=CEP+Bug+and+New+Features+Request+Intake+Guide&spaceKey=KBT" target="_blank">CEP Bug and New Features Request Intake Guide</a>
+					</li>
+				</ul>
+			</div>
+			<div id="others-tab">
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">CONTACT NUMBERS</a></span>
+				<ul>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">USA/CANADA: (888) 736-4859 Local toll-free(888)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">UK: +44 (800) 086-9992 Local toll-free(800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">SPAIN: +34 (901) 84-8636 Local toll-free(901)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">AUSTRALIA: +61 2 86 07-8054</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">FINLAND: +358 (800) 55-2085 Local toll-free(800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">AUSTRIA: +43 (800) 66-6025 Local toll-free(800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">SWEDEN: +46 (20) 10-9307 Local toll-free(20)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">NORWAY: +47 (800) 2-5115 Local toll-free(800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">BELGIUM: +32 (800) 2-6978 Local toll-free(800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">IRELAND: +353 (1800) 81-6808 Local toll-free(1800)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">DENMARK: +45 (808) 2-0381 Local toll-free(808)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">GERMANY: 80055771234 UIFN (Universal International Freephone Number)</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 13px">ITALY: 80055771234 UIFN (Universal International Freephone Number)</a></span>
+					</li>
+				</ul>
+				<hr>
+				<!-- -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">REVIEW & DECISION TIPS</a></span>
+				<span style="background-color: yellow; border-radius: 2px; color: black; padding-left: 4px; padding-right: 4px;">IMPORTANT!</span>
+				<ul>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 14px;">ALWAYS resolve CAR Cases where necessary!</a></span>
+					</li>	
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 14px;">Always add unique attributes on VIP on KOUNT when your decision has led you to suspend an account either due to Policy and Fraud</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 14px;">Before you start transaction review, always pay attention to the KOUNT rule being fired in order to understand where your review should lead you</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 14px;">Reviewing a transaction doesn't entirely rely on how many red flags you observed, but depends on your overall assessment by means of interpreting these risk flags and coming up a decision based on the risk flags you have captured</a></span>
+					</li>
+					<li style="list-style-type: square;">
+						<span><a href="#" style="font-weight: bolder; font-size: 14px;">This annotation tool helps you capture all the risk flags on the account. But your decision relies on how you interpret the risk flags you have capture. In short, don't rely your decision on the tool but on your analytical skills</a></span>
+					</li>															
+				</ul>
+				<hr>
+				<!-- -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">RECOMMENDED SPIELS</a></span>
+				<ul>
+					<li style="list-style-type: square;">
+						<span><a style="font-weight: bolder; padding-left: 10px;" href="#">Standby for an update</a></span>
+						<br>
+						<div class="tier-notes" style="padding: 5px; display: none;">
+						</div>
+					</li>	
+				</ul>
+			</div>
+			<div id="risk-tools-tab">
+			<!-- Quick Links to Risk Tools -->
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="https://www.remitly.com" target="_blank">REMITLY PAGE</a></span>
+				<br>
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="https://wiki.remitly.com/collector/pages.action?key=MHT" target="_blank">MANILA HR WIKI</a></span>
+				<hr>
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">RISK TOOLS</a></span>
+				<ul>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://amlinsight.lexisnexis.com/app/bps/main" target="_blank">Lexis Nexis</a>
+					</li>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://www.emailage.com/" target="_blank">Email Age</a>
+					</li>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://pro.lookup.whitepages.com" target="_blank">Whitepages Pro</a>
+					</li>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://console.siftscience.com/login" target="_blank">Sift Science</a>
+					</li>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://www.au10tixportalusa.com/" target="_blank">AU10TIX</a>
+					</li>
+					<li style="list-style-type: square;">
+						<a style="font-weight: bolder;" href="https://www.google.com.ph/maps" target="_blank">Google Maps</a>
+					</li>
+				</ul>
+				<hr>
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">OTHER HELPFUL TOOLS</a></span>
+				<ul>
+					<li>
+						<a style="font-weight: bolder;" href="https://docs.google.com/spreadsheets/d/1tGB-wjt1nffuE3KgLuaIZphmmtBkiF-Ou3005w-ZPVM/edit#gid=619250328" target="_blank">One-Stop Risk Review Guide</a>
+					</li>
+				</ul>
+				<hr>
+				<span><a style="font-weight: bolder; padding-left: 10px;" href="#">FLAGS</a></span>
+				<span style="background-color: yellow; border-radius: 2px; color: black; padding-left: 4px; padding-right: 4px;">YOUR GUIDE</span>
+				<ul>
+					<table style="text-align: center">
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Argentina.png" title="ARGENTINA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">ARGENTINA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Australia.png" title="AUSTRALIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">AUSTRALIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Austria.png" title="AUSTRIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">AUSTRIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Belgium.png" title="BELGIUM" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">BELGIUM</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Bolivia.png" title="BOLIVIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">BOLIVIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Brazil.png" title="BRAZIL" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">BRAZIL</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Canada.png" title="CANADA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">CANADA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Chile.png" title="CHILE" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">CHILE</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-China.png" title="CHINA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">CHINA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Colombia.png" title="COLOMBIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">COLOMBIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Costa-Rica.png" title="COSTA RICA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">COSTA RICA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Germany.png" title="GERMANY" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">GERMANY</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Denmark.png" title="DENMARK" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">DENMARK</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Dominican-Republic.png" title="DOMINICAN REPUBLIC" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">D. REPUBLIC</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Ecuador.png" title="ECUADOR" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">ECUADOR</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Spain.png" title="SPAIN" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">SPAIN</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Ethiopia.png" title="ETHIOPIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">ETHIOPIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Finland.png" title="FINLAND" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">FINLAND</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-United-Kingdom.png" title="UNITED KINGDOM" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">UK</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Georgia.png" title="GEORGIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">GEORGIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Guatemala.png" title="GUATEMALA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">GUATEMALA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Honduras.png" title="HONDURAS" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">HONDURAS</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Haiti.png" title="HAITI" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">HAITI</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-India.png" title="INDIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">INDIA</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Ireland.png" title="IRELAND" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">IRELAND</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Italy.png" title="ITALY" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">ITALY</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Kenya.png" title="KENYA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">KENYA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Mexico.png" title="MEXICO" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">MEXICO</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Netherlands.png" title="NETHERLANDS" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">NETHERLANDS</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Nigeria.png" title="NIGERIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">NIGERIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Norway.png" title="NORWAY" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">NORWAY</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Pakistan.png" title="PAKISTAN" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">PAKISTAN</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Peru.png" title="PERU" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">PERU</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Philippines.png" title="PHILIPPINES" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">PHILIPPINES</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-South-Africa.png" title="SOUTH AFRICA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">S. AFRICA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Sweden.png" title="SWEDEN" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">SWEDEN</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Uruguay.png" title="URUGUAY" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">URUGUAY</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Vietnam.png" title="VIETNAM" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">VIETNAM</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-El-Salvador.png" title="EL SALVADOR" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">EL SALVADOR</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Nicaragua.png" title="NICARAGUA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">NICARAGUA</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Paraguay.png" title="PARAGUAY" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">PARAGUAY</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Morocco.png" title="MOROCCO" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">MOROCCO</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Rwanda.png" title="RWANDA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">RWANDA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Senegal.png" title="SENEGAL" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">SENEGAL</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Tunisia.png" title="TUNISIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">TUNISIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Romania.png" title="ROMANIA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">ROMANIA</span>
+							</td>
+							<td>
+								<img src="https://www.countries-ofthe-world.com/flags-normal/flag-of-Panama.png" title="PANAMA" width="80px" height="50px">
+								<br>
+								<span style="font-size: 12px">PANAMA</span>
+							</td>
+						</tr>
+					</table>
+				</ul>
+				<hr>
+			</div>
+			</td>
+			<td valign="top" style="width: 45%" id="notes-summary-section">
+			<div class="form-group">
+				<span class="labels">THIS IS YOUR NOTEPAD</span>
+				<textarea rows="20" placeholder="Paste Customer's Information Here" class="form-control" style="color: black; font-size: 12px; font-weight: bold;"></textarea>
+				<span class="labels">ASSESSMENT SUMMARY</span>
+				<span style="background-color: yellow; border-radius: 2px; color: black; padding-left: 4px; padding-right: 4px;">IMPORTANT!</span>
+					<textarea id="assessment-summary" placeholder="Place your overall assessment here. This is very important!" rows="10" class="form-control" style="color: black; font-size: 12px; font-weight: bold;"></textarea>
+    				<label class="labels" style="margin-bottom: 0; margin-top: 0;">CHOOSE YOUR RISK GROUP</label>
+    				<select id="risk-group" class="custom-select custom-select-sm mb-3" style="width: 100%;">
+			        	<option value=""></option>
+			        	<option value="RISK BACKOFFICE ANNOTATIONS">RISK BACKOFFICE</option>
+			        	<option value="RISK INBOUND ANNOTATIONS">RISK INBOUND</option>
+			        	<option value="FRAUD SQUAD ANNOTATIONS">FRAUD SQUAD</option>
+			    	</select>
+
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">TRANSACTION DECISION</label>
+					<select id="transaction-label" class="custom-select custom-select-sm mb-3" style="width: 100%;">
+                        <option value=""></option>
+						<option value="Approving Transaction.">APPROVING TRANSACTION</option>
+						<option value="Cancelling Transaction.">CANCELLING TRANSACTION</option>
+				        <option value="Declining Transaction.">DECLINING TRANSACTION</option>
+					    <option value="Declining Transaction & Suspending Account.">DECLINING & SUSPENDING</option>
+				        <option value="Suspending Account.">SUSPENDING ACCOUNT</option>
+				        <option value="Placing Transaction to WCR.">PLACING TO WCR</option>
+                    </select>
+				<!--
+				<label class="labels">FRAUD DECISION<br>
+					<select id="fraud-decision" class="custom-select custom-select-sm mb-3" style="width: 200px">
+                        <option value=""></option>
+						<option value="A-FRAUD_PASS" title="Approving the transaction, where all risk flags are mitigated after conducting a thorough review">A-FRAUD_PASS</option>
+						<option value="D-FRAUD_ATO" title="This is when a fraudster compromised an existing Remitly account and place a transaction using an existing or new payment profile to a new recipient">D-FRAUD_ATO</option>
+				        <option value="D-FRAUD_ FAMILIAR" title="This is when a family member or someone close to the owner of the payment profile, initiated transactions that were later determined to be unauthorized by the true account owner">D-FRAUD_ FAMILIAR</option>
+					    <option value="D-FRAUD_STOLEN_INFO" title="This label should be applied when it is believed that a fraudster has stolen identity or payment profile information and uses that to create an account and process a transaction">D-FRAUD_STOLEN_INFO</option>
+				        <option value="D-FRAUD_SCAM" title="In this scenario, a customer is asked to send funds to an individual that they never met in order to gain high monetary returns">D-FRAUD_SCAM</option>
+				        <option value="D-FRAUD_DISPUTE_ABUSE" title="In this scenario, the customer is purposely and continuously creating disputes for their own financial gain despite acceptable service and their recipients receiving funds">D-FRAUD_DISPUTE_ABUSE</option>
+				        <option value="D-FRAUD_OTHER" title="This label should be used when the type of fraud encountered does not fit in existing violation types, we define the violation type as 'other'">D-FRAUD_OTHER</option>
+                    </select></label>
+				<label class="labels">POLICY DECISION<br>
+					<select id="policy-decision" class="custom-select custom-select-sm mb-3" style="width: 200px">
+                        <option value=""></option>
+						<option value="A-KYC_PASS" title="Maintaining active customer account due to manual pass for KYC & KYC status is moved to KYC Pass">A-KYC_PASS</option>
+						<option value="A-POLICY_PASS" title="Approving the transaction, on the basis that there are no policy violations found on the account">A-POLICY_PASS</option>
+				        <option value="A-POLICY_DUPLICATE_ACCOUNT_MINOR" title="Duplicate account confirmed, but transaction is approved because either the promo was stripped or abuse was ruled out">A-POLICY_DUPLICATE_ACCOUNT_MINOR</option>
+						<option value="D-POLICY_KYC_INCOMPLETE" title="KYC review not complete & no other risk indicators present. Necessary suspensions should be taken as a follow-up action">D-POLICY_KYC_INCOMPLETE</option>
+					    <option value="D-POLICY_ADULT_SERVICES" title="This label should be applied when a customer is sending for an illicit adult service that violates our user agreement (ie. under age)">D-POLICY_ADULT_SERVICES</option>
+				        <option value="D-POLICY_DUPLICATE_ACCOUNT_MAJOR" title="This label should be used when the customer created a new account to circumvent a previous enforcement for promo abuse, bad behavior or policy violation">D-POLICY_DUPLICATE_ACCOUNT_MAJOR</option>
+				        <option value="D-POLICY_OTHER_POLICY_MAJOR" title="This label should be applied when a customer is violating our acceptable use policies or user agreement but the violation does not fall into any of the other violation types">D-POLICY_OTHER_POLICY_MAJOR</option>
+				        <option value="D-POLICY_OTHER_POLICY_MINOR" title="Selecting the ‘Minor’ label will only result in a transaction decline and should be used when we believe the customer is a good customer but the transaction cannot be allowed">D-POLICY_OTHER_POLICY_MINOR</option>
+				        <option value="D-POLICY_GAMBLING" title="Customer is sending for the purpose of gambling. Examples of this include online betting or participation in cockfighting">D-POLICY_GAMBLING</option>
+				        <option value="D-POLICY_MULTI_LEVEL_MARKETING" title="When a customer is sending a large amount of money to one individual in hopes of receiving 5-10 times that amount in return">D-POLICY_MULTI_LEVEL_MARKETING</option>
+				        <option value="D-POLICY_UNLICENSED_REGION" title="This label should be applied when a customer is sending from an area that is not covered by Remitly’s license">D-POLICY_UNLICENSED_REGION</option>
+				        <option value="D-POLICY_SENDING_FOR_OTHERS" title="This label can be applied when a customer is sending money on the behalf of another person and that other person has authorized the transaction">D-POLICY_SENDING_FOR_OTHERS</option>
+                    </select></label>
+                -->
+                    <div>
+					<label class="labels" style="margin-bottom: 0; margin-top: 0;">DEFAULT RISK INSTRUCTIONS</label>
+      				<select id="default-risk-instructions" class="custom-select custom-select-sm mb-3">
+    					<option value=""></option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid ID.">NEED VALID ID</option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid POA.">NEED VALID POA</option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid ID and POA.">NEED VALID ID AND POA</option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid bank statement.">NEED BANK STATEMENT</option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid ID and bank statement.">NEED VALID ID AND BANK STATEMENT</option>
+    					<option value="CSR Action: In compliance with Remitly's Policy, we will need to ask for a valid proof/source of funds.">NEED VALID POF/SOF</option>
+    					<option value="CSR Action: If customer calls, please refer to CPT to perform challenge questions.">FOR CHALLENGE QUESTIONS [To be transferred to CPT]</option>
+					    <option value="CSR Action: If customer calls, refer to CPT for challenge questions:<br><br>CPT Action:<br>Where are you currently travelling (City, Country)?<br>Will you be visiting any other areas?<br>What is your reason for travel?<br>When did you leave?<br>When will you be back?<br>What is your current address in <US/CAN/UK/AUS/EU>?<br>What is your occupation?<br>What is your reason for sending?">NEED TO GATHER TRAVEL DETAILS</option>
+					    <option value="In order to send more than $999, we must collect:<br><br>Full SSN (if the customer does not have an SSN, may collect  ITIN - Individual Taxpayer Identification Number);<br>Copy of government issued Photo ID;<br>Customer’s Occupation;<br>Confirm current address">AZ/NM/OK REQUIRED KYC</option>
+					    <option value="CSR Action: Refer to CPT for verification of the following:<br><br>In order to process customer's transaction, please transfer to CPT to conduct Canada Ongoing Monitoring Verification:<br><br>CPT Action:<br>How often do you plan to send money?<br>What is your average send amount?<br>What is your current occupation?<br>Who is your current employer?<br>What is your source of funds?<br>What is your relationship to the recipient?<br>What is your reason for sending money?">CANADA ONGOING MONITORING</option>
+					    <option value="CSR Action: Please refer to CPT to initiate BKYC.<br><br>CPT Action - Confirm the following:<br>What is the name of your business?<br>Please provide your Tax Identification Number (TIN)<br>What type of work do your employees do for your business?<br>How many employees do you expect to pay?<br>At what frequency do you expect to pay your employees?<br>On average, how long have your employees worked for you?<br>How do you track/pay your employees?<br>Can you provide documentation of employee time tracking (i.e. paystubs, timesheets, etc)?<br>What is the nature of your business with the recipients?">INITIATE BKYC</option>
+					    <option value="The customer account will be considered <q>Canada Specific KYC Pass</q> once all of the requirements below are satisfied:<br><br>The customer's Identity is e-Verified through Equifax (Name, Address, and DOB) and has a credit history of six months or more, as evidenced by an electronic verification from Equifax<br>The customer verifies ownership of a Canadian Financial Account based on the successful completion of one of the following steps:<br>-Submission of original Credit Card Statement<br>-Submission of original Bank Account Statement (Savings or Checking)<br>-Submission of original Loan Account Statement<br>-Verification of Micro-Deposit<br><br>Risk Investigator acceptance of answers to Canada EDD questions (indicating that the the answers are specific, consistent and not indicative of high risk based on a manual review.)">CANADA DUAL SOURCE OPTION 1</option>
+					    <option value="The customer account will be considered ‘Canada Specific KYC pass’ once all of the requirements below are satisfied.<br><br>The customer verifies ownership of a Canadian Financial Account based on the successful completion of one of the following steps:<br>-Submission of original Credit Card Statement<br>-Submission of original Bank Account Statement (Savings or Checking)<br>-Submission of original Loan Account Statement<br>-Verification of Micro-Deposit<br><br>-The customer verifies name and address based on the successful completion of one of the following steps:<br>-Submission of original Utility Bill (water, electricity, gas, landline; must relate to the property at the registered address)<br>-Submission of original Pay Stub<br>-Submissions of original Credit Card Statement<br>-Submission of original Bank Account Statement (Savings or Checking)<br>-Submission of original Loan Account Statement<br><br>Risk Investigator acceptance of answers to Canada EDD questions (indicating that the answers are specific, consistent and not indicative of high risk based on a manual review.)">CANADA DUAL SOURCE OPTION 2</option>
+					    <option value="CSR Action: In order to pass KYC, we will need to ask for Cruise Ship and Passport.">SEAFARER [Need CRUISE SHIP ID & PASSPORT]</option>
+					    <option value="CSR Action: In order to pass KYC, we will need to ask for Cruise Ship.">SEAFARER [Need CRUISE SHIP ID]</option>
+					    <option value="CSR Action: In order to pass KYC, we will need to ask for Passport.">SEAFARER [Need PASSPORT]</option>
+					    <option value="CSR Action: In order to allow payout on the transaction, sender must confirm micro-deposit.">MICRODEPOSIT - TO HOLD PAYOUT</option>
+					</select>
+    			</div>
+			</div>
+			<div>
+			<button type="button" class="btn btn-success" style="float: right; margin-left: 5px" onclick="process()" data-toggle="modal" data-target="#myModal">CHECK</button>
+			<span><button type="button" class="btn btn-danger" style="float: right" onclick="refresh()">CLEAR</button></span>
+			</div>
+			
+			</td>
+			</tr>
+		</table>
+			<div id="accordion">
+				<!-- First Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseOne">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">TRAVEL POLICY ANNOTATIONS</h5>
+						</a>
+					</div>
+					<div id="collapseOne" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">If suspending because we’re unable to confirm customer resides in a location we’re licensed to send (Unable to reach customer)</a></span>
+								</dt>
+								<dd class="travel-notes">
+									&rarr; <q>Unable to verify customer resides in a location we’re licensed to transact, <strong>{Supporting Evidence- Include sign-in information, billing and payment profile address location, address KYC/e-verification status, whether sanctioned countries or unlicensed loc (for instance, Quebec)}</strong>, suspending the account and notifying the customer via email. If customer contests and is able to provide evidence that they do live in a location we’re licensed to send, transfer to an RI.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">If suspending because customer confirms they do not live in a location we’re licensed to send (Confirmed during challenge questions)</a></span>
+								</dt>
+								<dd class="travel-notes">
+									&rarr; <q>Customer does not currently reside in a location we’re licensed to transact, <strong>{Supporting Evidence- Include sign-in information, billing and payment profile address location, address KYC/e-verification status, whether sanctioned countries or unlicensed location)}</strong>, suspending the account and notifying the customer via email. If customer moves to a location we’re licensed to send, transfer to an RI.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Second Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">ATO FLAG ANNOTATIONS</h5>
+						</a>
+					</div>
+					<div id="collapseTwo" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE ACCOUNT WAS SANITIZED / Customer reporting fraud - Annotation for ATO but no transaction(s) made</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q>Customer reported fraud but no transaction was successfully initiated. This account was sanitized by (1) email address change/password reset, (2) enabled 2FA, (3) deleted payment profile and recipient details, (4) checked other compromised accounts and (4) added [insert details here] in the VIP list.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE CUSTOMER NEEDS TO CREATE A NEW ACCOUNT / Customer reporting Fraud - Annotation for ATO with Dispute</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q>Customer reported fraud and has disputed the transaction <strong>[transaction number]</strong> from his/her bank to reverse the transaction. Advise customer that we will need to wait for the chargeback report from the bank (to avoid refunding twice) and to refer case to the Disputes team. The transaction successfully completed and advised the customer to create a new account. This account will remain suspended for Confirmed Fraud - ATO.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE CUSTOMER NEEDS TO CREATE A NEW ACCOUNT / Customer reporting Fraud - Annotation for ATO w/o Dispute but Transaction was Completed</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q>Customer reported fraud and <strong>[Transaction number]</strong> successfully completed. Processed refund and advised <strong>[SLA]</strong> since customer used <strong>[account type]</strong>. Advised the customer to create a new account. This account will remain suspended for Confirmed Fraud - ATO.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE CUSTOMER NEEDS TO CREATE A NEW ACCOUNT / Customer reporting Fraud - Annotation for ATO w/o Dispute and Transaction is still pending</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q>Customer reported fraud specific to <strong>[Transaction number]</strong> in [transaction status]. Declined this transaction. Advised the customer to create a new account. This account will remain suspended for Confirmed Fraud - ATO.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE CUSTOMER NEEDS TO CREATE A NEW ACCOUNT / Queue for review - Successful contact with the customer</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q>[transaction number] queued for <strong>[Kount rule]</strong>, in <strong>[transaction status]</strong>. Declined this transaction for ATO due to <strong>[list all data points uniquely tied to the fraudster]</strong>. Successfully contacted the customer and identity verification completed. Explained the need to create a new account and customer agreed to create a new account. This account will remain suspended for Confirmed Fraud - ATO.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">IF THE CUSTOMER NEEDS TO CREATE A NEW ACCOUNT / Queue for review - Unable to reach the customer</a></span>
+								</dt>
+								<dd class="ato-notes">
+									&rarr; <q><strong>[transaction number]</strong> queued for <strong>[Kount rule]</strong>, in <strong>[transaction status]</strong>. Declined this transaction for possible ATO <strong>[list all data points uniquely tied to the fraudster]</strong>. Unable to reach the customer, thus requested for Verbal contact. Customer will need to create a new account. This account will remain suspended for Possible Fraud - ATO.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Third Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseThree">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">US TIER ANNOTATIONS</h5>
+						</a>
+					</div>
+					<div id="collapseThree" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / FULL SSN PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 2 sending limit approved. Customer's full SSN has been provided and updated. Customer has also answered all EDD questions with no other red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / PASSPORT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 2 sending limit approved. Customer has submitted a copy of his/her Passport. ID is valid and matches account information. Customer has also answered all EDD questions with no other red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / SSN AND PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Full SSN Paystub have been provided. Paystub verifies customer's name, address and employer declared - <strong>[name of employer]</strong>. Paystub also shows <strong>[approx amount]</strong> monthly salary and <strong>[approx amount]</strong> YTD earnings; salary aligned with customer's profession - indicate occupation listed. Customer has also answered all EDD questions with no other red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / PASSPORT AND PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her Passport and Paystub. Passport matches account information. Paystub verifies customer's name, address and employer declared - <strong>[name of employer]</strong>. Paystub also shows <strong>[approx amount]</strong> monthly salary and <strong>[approx amount]</strong> YTD earnings; salary aligned with customer's profession - indicate occupation listed. Customer has also answered all EDD questions with no other red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / FULL SSN AND BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Full SSN and Bank Statement have been provided. Bank statement verifies the customer's name, address and account number. Bank statement's outstanding balance is <strong>[approx amount]</strong>. Customer has also answered all EDD questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / PASSPORT AND BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her Passport and Bank Statement. Passport matches account information. Bank statement verifies the customer's name, address and account number. Bank statement's outstanding balance is <strong>[approx amount]</strong>. Customer has also answered all EDD questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / FULL SSN AND PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer's full SSN has been provided and Paystub. Paystub verifies customer's name, address and employer declared - <strong>[name of employer]</strong>. Customer has also answered all EDD questions with no other red flags.<br><br>Lower Tier approved. Paystub only showing <strong>[approx amount]</strong> YTD earnings.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if the customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / PASSPORT AND PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer's Passport has been provided and Paystub. Passport verifies information on file. Paystub verifies customer's name, address and employer declared - <strong>[name of employer]</strong>. Customer has also answered all EDD questions with no other red flags.<br><br>Lower Tier approved. Paystub only showing <strong>[approx amount]</strong> YTD earnings.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if the customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / FULL SSN AND BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer's full SSN + Bank Statement have been provided. That statement verifies the customer's name, address and account number. Customer has also answered all EDD questions with no red flags.<br><br>Lower Tier approved. Bank statement only showing <strong>[approx amount]</strong> ending balance.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / PASSPORT AND BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her Passport and matches account information + Bank Statement. That statement verifies the customer's name, address and account number. Customer has also answered all EDD questions with no red flags.<br><br>Lower Tier approved. Bank statement only showing <strong>[approx amount]</strong> ending balance.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Fourth Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseFour">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">CAN TIER ANNOTATIONS</h5>
+						</a>
+					</div>
+					<div id="collapseFour" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / 3+ YEARS & E-VERIFIED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier II sending limit approved. Customer has been e-verified through Equifax including verified 3+ years credit history. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / &gt;6 months, &lt;3 Years and E-verified + Proof of Account Ownership</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier II sending limit approved. Customer has been e-Verified through Equifax including verified 6+ months credit history and has provided a <strong>[bank statement / credit card statement / loan statement]</strong> from <strong>[name of Canadian financial institution]</strong> and it meets all original document requirements. That statement verifies the <strong>[account number and customer's name, address, etc]</strong>. Customer has also answered all EDD questions with no red flags. All information provided is consistent.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / &gt;6 Months, &lt;3 Years and E-verified + Microdeposit</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier II sending limit approved. Customer has been e-verified through Equifax including verified 6+ months credit history and has verified a micro-deposit. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / Microdeposit + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier II sending limit approved. Customer has verified a micro-deposit. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong> and it meets all original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / Proof of account ownership + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier II sending limit approved. To verify ownership of a Canadian financial account, customer has provided a <strong>[bank statement / credit card statement / loan statement]</strong> from <strong>[name of Canadian financial institution]</strong>. That statement verifies the <strong>[account number and customer's name, address, etc]</strong>. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong>. All documents meet the original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Bank Statement Provided / 3+ Years and E-verified</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-Verified through Equifax including verified 3+ years credit history. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a bank statement from <strong>[name of Canadian bank]</strong> for account number ending in <strong>[####]</strong> to verify proof of funds. The statement matches the account on file and the funds support sending at T3. No suspicious activity, e.g., large irregular deposits or withdrawals, found on the statement.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Bank Statement Provided / &gt;6 Months, &lt;3 Years and E-verified + Proof of Account Ownership</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-Verified through Equifax including verified 6+ months credit history. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a bank statement from <strong>[name of Canadian bank]</strong> for account number ending in <strong>[####]</strong> to verify proof of funds. The statement matches the account on file and the funds support sending at T3. No suspicious activity, e.g., large irregular deposits or withdrawals, found on the statement.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Bank Statement Provided / &gt;6 Months, &lt;3 Years and E-verified + Microdeposit</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-verified through Equifax including verified 6+ months credit history and has verified a micro-deposit. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a bank statement from <strong>[name of Canadian bank]</strong> for account number ending in <strong>[####]</strong> to verify proof of funds. The statement matches the account on file and the funds support sending at T3. No suspicious activity, e.g., large irregular deposits or withdrawals, found on the statement.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Bank Statement Provided / Microdeposit + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has verified a micro-deposit. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong> and it meets all original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a bank statement from <strong>[name of Canadian bank]</strong> for account number ending in <strong>[####]</strong> to verify proof of funds. The statement matches the account on file and the funds support sending at T3. No suspicious activity, e.g., large irregular deposits or withdrawals, found on the statement.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Bank Statement Provided / Proof of Account Ownership + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. To verify ownership of a Canadian financial account, customer has provided a <strong>[bank statement / credit card statement / loan statement]</strong> from <strong>[name of Canadian financial institution]</strong>. That statement verifies the <strong>[account number and customer's name, address, etc]</strong>. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong>. All documents meet the original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a bank statement from <strong>[name of Canadian bank]</strong> for account number ending in <strong>[####]</strong> to verify proof of funds. The statement matches the account on file and the funds support sending at T3. No suspicious activity, e.g., large irregular deposits or withdrawals, found on the statement.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Paystub Provided / 3+ Years and E-verified</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-Verified through Equifax including verified 3+ years credit history. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a paystub from <strong>[name of issuer]</strong> to verify proof of funds. The information on the paystub matches the information provided by the customer via EDD and the funds support sending at T3.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Paystub Provided / &gt;6 Months, &lt;3 Years and E-verified + Proof of Account Ownership</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-Verified through Equifax including verified 6+ months credit history and has provided a <strong>[bank statement / credit card statement / loan statement]</strong> from <strong>[name of Canadian financial institution]</strong> and it meets all original document requirements. That statement verifies the <strong>[account number and customer's name, address, etc]</strong>. Customer has also answered all EDD questions with no red flags. All information provided is consistent. Customer has provided a paystub from <strong>[name of issuer]</strong> to verify proof of funds. The information on the paystub matches the information provided by the customer via EDD and the funds support sending at T3.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Paystub Provided / &gt;6 Months, &lt;3 years and E-verified + Microdeposit</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has been e-verified through Equifax including verified 6+ months credit history and has verified a micro-deposit. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a paystub from <strong>[name of issuer]</strong> to verify proof of funds. The information on the paystub matches the information provided by the customer via EDD and the funds support sending at T3.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Paystub Provided / Microdeposit + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. Customer has verified a micro-deposit. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong> and it meets all original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a paystub from <strong>[name of issuer]</strong> to verify proof of funds. The information on the paystub matches the information provided by the customer via EDD and the funds support sending at T3.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / Paystub Provided / Proof of Account Ownership + POA</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier III sending limit approved. To verify ownership of a Canadian financial account, customer has provided a <strong>[bank statement / credit card statement / loan statement]</strong> from <strong>[name of Canadian financial institution]</strong>. That statement verifies the <strong>[account number and customer's name, address, etc]</strong>. To verify name and address, customer has provided a <strong>[utility bill / paystub / bank statement / credit card statement / loan statement]</strong> from <strong>[name of issuer]</strong>. All documents meet the original document requirements. Customer has also answered all EDD questions with no red flags. All of the information provided is consistent. Customer has provided a paystub from <strong>[name of issuer]</strong> to verify proof of funds. The information on the paystub matches the information provided by the customer via EDD and the funds support sending at T3.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her Paystub. ID is valid and matches account information. Paystub verifies customer's name, address and employer declared - <strong>[name of employer]</strong>. Customer has also answered all eKYC questions with no red flags.<br><br>Lower Tier approved. Paystub only showing <strong>[approx amount]</strong> YTD earnings.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her Bank Statement. That statement verifies the customer's name, address and account number. Customer has also answered all eKYC questions with no red flags.<br><br>Lower Tier approved. Bank statement only showing <strong>[approx amount]</strong> ending balance.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Fifth Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseFive">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">AUS TIER ANNOTATION</h5>
+						</a>
+					</div>
+					<div id="collapseFive" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 2 sending limit approved. Customer has submitted a copy of his <strong>[indicate what type of ID]</strong>. ID is valid and matches account information. Customer has also answered all EDD questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Paystub. ID is valid and matches account information. Paystub verifies <strong>[customer's name, address]</strong> and employer declared - <strong>[name of employer]</strong>. Paystub also shows <strong>[approx amount]</strong> monthly salary and <strong>[approx amount]</strong> YTD earnings; salary aligned with customer's profession - indicate occupation listed. Customer has also answered all EDD questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Bank Statement. That statement verifies the customer's name, address and account number. Bank statement outstanding balance is <strong>[approx amount]</strong>. Customer has also answered all EDD questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Paystub. ID is valid and matches account information. Paystub verifies customer's name, address and employer declared <strong>[name of employer]</strong>. Customer has also answered all EDD questions with no red flags.<br><br>Lower Tier approved. Paystub only showing <strong>[approx amount]</strong> MTD/YTD earnings.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Bank Statement. That statement verifies the customer's name, address and account number. Customer has also answered all EDD questions with no red flags.<br><br>Lower Tier approved. Bank statement only showing <strong>[approx amount]</strong> ending balance.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER DECLINE / Decline for Incomplete KYC</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined. Customer was unable to provide a document to verify name and address. <strong>[account level action as necessary]</strong>.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER DECLINE / Decline for Business Account</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined. Customer confirmed that he wanted to send funds for business reasons. Suspending account for policy violation.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER DECLINE / Declines for Risk / Red Flags <strong>[choose the most appropriate annotation]</strong></a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined. Customer’s EDD responses were not consistent with <strong>[information on their account / documents provided]</strong>. <strong>[provide specific details on red flags seen in EDD answers]</strong> <strong>[account level action as necessary]</strong>.</q>
+								</dd>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined. Funds do not support sending at T3.</q>
+								</dd>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined due to the following red flags <strong>[indicated red flags]</strong>. <strong>[Indicate additional / account level action, if any]</strong>.</q>
+								</dd>
+								<dd class="tier-notes">
+									&rarr; <q>Request for sending limit increase declined. Given <strong>[risk indicator]</strong> and no transaction history, customer may re-apply when they have transaction history.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Sixth Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseSix">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">EU/UK TIER ANNOTATION</h5>
+						</a>
+					</div>
+					<div id="collapseSix" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 2 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong>. ID is valid and matches account information. Paystub provided verifies <strong>[customer's name, address]</strong> and employer declared - <strong>[name of employer]</strong>. Paystub also shows <strong>[approx amount]</strong> monthly salary and <strong>[approx amount]</strong> YTD earnings; salary aligned with customer's profession - indicate occupation listed. Customer has also answered all eKYC questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 2 / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 2 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong>. ID is valid and matches account information. Bank statement provided verifies the customer's name, address and account number. Bank statement's outstanding balance is <strong>[approx amount]</strong>. Customer has also answered all eKYC questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Paystub. ID is valid and matches account information. Paystub verifies <strong>[customer's name, address]</strong> and employer declared - <strong>[name of employer]</strong>. Paystub also shows <strong>[approx amount]</strong> monthly salary and <strong>[approx amount]</strong> YTD earnings; salary aligned with customer's profession - indicate occupation listed. Customer has also answered all eKYC questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">TIER 3 / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Request for Tier 3 sending limit approved. Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Bank Statement. That statement verifies the customer's name, address and account number. Bank statement's outstanding balance is <strong>[approx amount]</strong>. Customer has also answered all eKYC questions with no red flags.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / PAYSTUB PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Paystub. ID is valid and matches account information. Paystub verifies customer's name, address and employer declared <strong>[name of employer]</strong>. Customer has also answered all eKYC questions with no red flags.<br><br>Lower Tier approved. Paystub only showing <strong>[approx amount]</strong> YTD earnings.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">LOWER TIER APPROVAL / BANK STATEMENT PROVIDED</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>Customer has submitted a copy of his/her <strong>[indicate what type of ID]</strong> and Bank Statement. That statement verifies the customer's name, address and account number. Customer has also answered all eKYC questions with no red flags.<br><br>Lower Tier approved. Bank statement only showing <strong>[approx amount]</strong> ending balance.<br><br>CSR Action: When customer calls in, please advise that in order to be approved for Tier 3, we require proof of additional funds. Please endorse to CPT if customer has additional questions.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<!-- Seventh Collapsable Option -->
+				<div class="card">
+					<div class="card-reader">
+						<a class="card-link" data-toggle="collapse" href="#collapseSeven">
+							<h5 style="padding: 5px; border-radius: 3px 3px 0 0; background-color: rgba(226, 171, 129, 0.7)">NEED MORE INFORMATION / PENDING TIER (ALL CORRIDORS)</h5>
+						</a>
+					</div>
+					<div id="collapseSeven" class="collapse" data-parent="#accordion">
+						<div class="card-body">
+							<dl>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">Requesting Documents + No red flag on the account</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>CSR Action:<br><br>Pended Tier <b>[2 or 3]</b> request to request for <b>[document]</b> to pass <b>[KYC and/or Sending limit]</b> requirements. No redflag found on the account. Customer has answered all EDD questions with no red flags. Once customer provides sufficient document/s that satisfy the request an RI or CARE member can approve the tier request.</q>
+								</dd>
+								<dt>
+									<span><a style="font-weight: bolder" href="#">Requesting Documents  and challenge questions required</a></span>
+								</dt>
+								<dd class="tier-notes">
+									&rarr; <q>CSR Action:<br><br>Pended Tier <b>[2 or 3]</b> request to request for <b>[documents]</b> to pass <b>[KYC and/or Sending limit]</b> requirements. Follow existing endorsement processes to ask challenge questions.<br><br>CPT Action: Ask <b>[type challenge questions needed]</b>.</q>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+		<!-- The Modal -->
+		<div class="modal fade" id="myModal">
+		    <div class="modal-dialog modal-lg">
+		      	<div class="modal-content">
+		      
+		        <!-- Modal Header -->
+		        <div class="modal-header">
+		            <h4 class="modal-title">RISK PREVIEW</h4>
+		            <button type="button" class="close" data-dismiss="modal">&times;</button>
+		        </div>
+		        <div class="alert alert-danger" style="display: none; margin-left: 3px; margin-right: 3px; margin-top: 3px;" id="vip-alert">
+    				<strong>Psst!</strong> Don't forget to place unique attributes on <strong>VIP!</strong> <strong>Go to Kount!</strong>
+    			</div>
+		        <!-- Modal body -->
+		        <div class="modal-body">
+		        	<span id="risk-group-modal" style="display: none;"></span>
+		        	<span id="default-risk-instructions-modal" style="display: none;"></span>
+		        	<textarea class="form-control" rows="3" id="additional-risk-instructions">Add'l CPT Instructions: [delete if not needed]</textarea></span>
+		        	<br>
+		            <span id="sending-corridor-modal" style="display: none"></span>
+		            <span id="receiving-corridor-modal" style="display: none"></span>
+		            <span id="inbound-sending-corridor-modal" style="display: none"></span>
+		            <span id="inbound-receiving-corridor-modal" style="display: none"></span>
+		            <span id="kount-rule-modal" style="display: none"></span>
+		            <span id="inbound-kount-rule-modal" style="display: none"></span>
+		            <span id="inbound-queue-modal" style="display: none"></span>
+		            <span id="inbound-first-touch-modal" style="display: none"></span>
+		            <span id="inbound-nature-of-concern-modal" style="display: none"></span>
+		            <span id="dvid-ipad-info-modal" style="display: none"></span>
+		            <span id="receiver-information-modal" style="display: none"></span>
+		            <span id="kyc-status-modal" style="display: none"></span>
+		            <span id="sift-score-modal" style="display: none"></span>
+		            <span id="inbound-sift-score-modal" style="display: none"></span>
+		            <span id="inbound-dvid-ipad-info-modal" style="display: none"></span>
+		            <span id="inbound-sender-info-modal" style="display: none"></span>
+		            <span id="inbound-receiver-info-modal" style="display: none"></span>
+		            <span id="customer-type-modal" style="display: none"></span>
+		            <span id="email-address-modal" style="display: none"></span>
+		            <span id="inbound-email-modal" style="display: none"></span>
+		            <span id="phone-registered-modal" style="display: none"></span>
+		            <span id="inbound-phone-modal" style="display: none"></span>
+		            <span id="id-document-modal" style="display: none"></span>
+		            <span id="poa-document-modal" style="display: none"></span>
+		            <span id="funds-source-modal" style="display: none"></span>
+		            <span id="external-links-modal" style="display: none"></span>
+		            <span id="inbound-external-links-modal" style="display: none"></span>
+		            <span id="transaction-details-modal" style="display: none"></span>
+		            <span id="inbound-transaction-details-modal" style="display: none"></span>
+		            <span id="payment-profile-modal" style="display: none"></span>
+		            <span id="inbound-payment-profile-modal" style="display: none"></span>
+		            <span id="account-changes-modal" style="display: none"></span>
+		            <span id="inbound-account-history-modal" style="display: none"></span>
+		            <span id="linked-account-modal" style="display: none"></span>
+		            <span id="inbound-linked-accounts-modal" style="display: none"></span>
+		            <span id="risk-summary-modal" style="display: none"></span>
+		            <span id="inbound-risk-summary-modal" style="display: none"></span>
+		            <span id="assessment-summary-modal" style="display: none"></span>
+		            <span id="transaction-label-modal" style="display: none"></span>
+		            <span id="fraud-decision-modal" style="display: none"></span>
+		            <span id="policy-decision-modal" style="display: none"></span>
+		        </div>
+		        <!-- Modal footer -->
+		        <div class="modal-footer">
+		        	<button type="button" class="btn btn-warning" data-dismiss="#" id="copy-button">Copy</button>
+		            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+		        </div>
+		        
+		    	</div>
+		    </div>
+		</div>
+		<script type="text/javascript">
+			//creating a timer for the update label to fade after 7 days...
+			
+			//date when update fades
+			var countDownDateOne = new Date("Oct 15, 2018 00:00:00").getTime();
+
+			var x = setInterval(function(){
+
+			//current date and time
+			var now = new Date().getTime();
+
+			// find the distance between now and the countdown date
+			var distance = countDownDateOne - now;
+
+			// If the count down is over, update banner disappears 
+			if(distance < 0){
+				clearInterval(x);
+				document.getElementById('CS-guidelines-update').style.display = "none";
+			}
+			//for update...
+			//<span style="background-color: red; border-radius: 2px; color: white; padding-left: 4px; padding-right: 4px;" id="#">UPDATE!</span>
+		}, 1000);
+		</script>
+		<script type="text/javascript">
+			//creating a timer for the update label to fade after 7 days...
+			
+			//date when update fades
+			var countDownDateTwo = new Date("Sep 8, 2018 10:53:00").getTime();
+
+			var x = setInterval(function(){
+
+			//current date and time
+			var now = new Date().getTime();
+
+			// find the distance between now and the countdown date
+			var distance = countDownDateTwo - now;
+
+			// If the count down is over, update banner disappears 
+			if(distance < 0){
+				clearInterval(x);
+				document.getElementsByClassName('contact-number').style.display = "none";
+			}
+
+		}, 1000);
+		</script>
+		<script type="text/javascript">
+			// copy to clipboard function
+			var copySummary = document.querySelector('#copy-button');
+			copySummary.addEventListener('click', function(event) {
+
+				//selecting your complete risk summary
+				var wholeSummary = document.querySelector('.modal-body');
+				var range = document.createRange();
+				range.selectNode(wholeSummary);
+				window.getSelection().addRange(range);
+
+				try {
+					// Now that we've selected the anchor text, execute the copy command  
+					var successful = document.execCommand('copy');
+					var msg = successful ? 'successfully!' : 'unsuccessfully!';
+					alert('Copied ' + msg);
+				}
+
+				catch(err) {
+					alert('Oops, unable to copy');
+				}
+
+				// Remove the selections - NOTE: Should use
+				// removeRange(range) when it is supported  
+				window.getSelection().removeAllRanges(); 
+			})
+		</script>
+		<script type="text/javascript">
+			//making the tabs appear and disappear
+			
+			$(document).ready(function(){
+				$('#backoffice-button').click(function(){
+					document.getElementById('inbound-tab').style.display = "none";
+					document.getElementById('backoffice-tab').style.display = "block";
+					document.getElementById('link-tab').style.display = "none";
+					document.getElementById('others-tab').style.display = "none";
+					document.getElementById('risk-tools-tab').style.display = "none";
+				})
+				
+				$('#inbound-button').click(function(){
+					document.getElementById('inbound-tab').style.display = "block";
+					document.getElementById('backoffice-tab').style.display = "none";
+					document.getElementById('link-tab').style.display = "none";
+					document.getElementById('others-tab').style.display = "none";
+					document.getElementById('risk-tools-tab').style.display = "none";
+				})
+				
+				$('#link-button').click(function(){
+					document.getElementById('inbound-tab').style.display = "none";
+					document.getElementById('backoffice-tab').style.display = "none";
+					document.getElementById('link-tab').style.display = "block";
+					document.getElementById('others-tab').style.display = "none";
+					document.getElementById('risk-tools-tab').style.display = "none";
+				})
+
+				$('#others-button').click(function(){
+					document.getElementById('inbound-tab').style.display = "none";
+					document.getElementById('backoffice-tab').style.display = "none";
+					document.getElementById('link-tab').style.display = "none";
+					document.getElementById('others-tab').style.display = "block";
+					document.getElementById('risk-tools-tab').style.display = "none";
+				})
+
+				$('#risk-tools-button').click(function(){
+					document.getElementById('inbound-tab').style.display = "none";
+					document.getElementById('backoffice-tab').style.display = "none";
+					document.getElementById('link-tab').style.display = "none";
+					document.getElementById('others-tab').style.display = "none";
+					document.getElementById('risk-tools-tab').style.display = "block";
+				})
+
+			})
+			
+		</script>
+		<script>
+			$(document).ready(function(){
+			    $('[data-toggle="popover"]').popover();   
+			});
+		</script>
+		<script>
+			// When the user scrolls down 20px from the top of the document, show the button
+			window.onscroll = function() {scrollFunction()};
+
+				function scrollFunction() {
+				    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+				        document.getElementById("myBtn").style.display = "block";
+				} 
+					else {
+				        document.getElementById("myBtn").style.display = "none";
+				}
+			}
+
+			// When the user clicks on the button, scroll to the top of the document
+				function topFunction() {
+			    	document.body.scrollTop = 0;
+			    	document.documentElement.scrollTop = 0;
+			}
+		</script>
+		<script type="text/javascript">
+			// making unnecessary input box disappear upon Kount Entry
+			function hideElements(){
+
+				var deleter = document.getElementById('inbound-kount-rule').value;
+
+				if(deleter.includes('Fraud/Model/Fraud') || deleter.includes('Fraud/Model/Stolen') || deleter.includes('Fraud/Risk/NGA') || deleter.includes('Fraud/MO/Sending') || deleter.includes('Fraud/MO/DO') || deleter.includes('Fraud/MO/Caution:')){
+					document.getElementById('dvid-ipad-delete').style.display = "block";
+					document.getElementById('sender-info-delete').style.display = "block";
+					document.getElementById('receiver-info-delete').style.display = "block";
+					document.getElementById('external-links-delete').style.display = "block";
+					document.getElementById('email-address-delete').style.display = "block";
+					document.getElementById('phone-number-delete').style.display = "block";
+					document.getElementById('transaction-details-delete').style.display = "block";
+					document.getElementById('payment-profile-delete').style.display = "block";
+					document.getElementById('account-history-delete').style.display = "block";
+					document.getElementById('linked-account-delete').style.display = "block";
+					document.getElementById('risk-summary-delete').style.display = "block";
+				}			
+
+				else if(deleter.includes('Fraud/ATO') || deleter.includes('Fraud/Linked') || deleter.includes('Policy/Risk/IP')){
+					document.getElementById('dvid-ipad-delete').style.display = "block";
+					document.getElementById('sender-info-delete').style.display = "none";
+					document.getElementById('receiver-info-delete').style.display = "block";
+					document.getElementById('external-links-delete').style.display = "none";
+					document.getElementById('email-address-delete').style.display = "none";
+					document.getElementById('phone-number-delete').style.display = "block";
+					document.getElementById('transaction-details-delete').style.display = "none";
+					document.getElementById('payment-profile-delete').style.display = "block";
+					document.getElementById('account-history-delete').style.display = "none";
+					document.getElementById('linked-account-delete').style.display = "block";
+					document.getElementById('risk-summary-delete').style.display = "block";
+				}
+
+				else if(deleter.includes('Policy/Device Location/Region') || deleter.includes('Policy/Risk/Device to shipping +3500km')){
+					document.getElementById('dvid-ipad-delete').style.display = "block";
+					document.getElementById('sender-info-delete').style.display = "none";
+					document.getElementById('receiver-info-delete').style.display = "none";
+					document.getElementById('external-links-delete').style.display = "none";
+					document.getElementById('email-address-delete').style.display = "none";
+					document.getElementById('phone-number-delete').style.display = "block";
+					document.getElementById('transaction-details-delete').style.display = "none";
+					document.getElementById('payment-profile-delete').style.display = "block";
+					document.getElementById('account-history-delete').style.display = "none";
+					document.getElementById('linked-account-delete').style.display = "none";
+					document.getElementById('risk-summary-delete').style.display = "block";
+				}
+
+				else {
+					document.getElementById('dvid-ipad-delete').style.display = "none";
+					document.getElementById('sender-info-delete').style.display = "none";
+					document.getElementById('receiver-info-delete').style.display = "none";
+					document.getElementById('external-links-delete').style.display = "none";
+					document.getElementById('email-address-delete').style.display = "none";
+					document.getElementById('phone-number-delete').style.display = "none";
+					document.getElementById('transaction-details-delete').style.display = "none";
+					document.getElementById('payment-profile-delete').style.display = "none";
+					document.getElementById('account-history-delete').style.display = "none";
+					document.getElementById('linked-account-delete').style.display = "none";
+					document.getElementById('risk-summary-delete').style.display = "none";
+				}
+			}
+		</script>
+		<script type="text/javascript">
+
+			function process(){
+				
+				var riskGroup = document.getElementById('risk-group').value;
+				var defaultRiskInstructions = document.getElementById('default-risk-instructions').value;
+				var additionalRiskInstructions = document.getElementById('additional-risk-instructions');
+				//var cptInstructionsLabel = document.getElementById('cpt-instructions-label').value;
+				var sendingCorridor = document.getElementById('sending-corridor').value;
+				var receivingCorridor = document.getElementById('receiving-corridor').value;
+				// for backoffice
+				var kountRule = document.getElementById('kount-rule').value;
+				var dvidIpadInfo = document.getElementById('dvid-ipad-info').value;
+				var receiverInformation = document.getElementById('receiver-information').value;
+				var kycStatus = document.getElementById('kyc-status').value;
+				var siftScore = document.getElementById('sift-score').value;
+				var customerType = document.getElementById('customer-type').value;
+				var emailAddress = document.getElementById('email-address').value;
+				var phoneNumber = document.getElementById('phone-registered').value;
+				var idProvided = document.getElementById('id-document').value;
+				var poaProvided = document.getElementById('poa-document').value;
+				var proofOfFunds = document.getElementById('funds-source').value;
+				var externaLinks = document.getElementById('external-links').value;
+				var transactionDetails = document.getElementById('transaction-details').value;
+				var paymentProfile = document.getElementById('payment-profile').value;
+				var accountChanges = document.getElementById('account-changes').value;
+				var linkedAccount = document.getElementById('linked-account').value;
+				var riskSummary = document.getElementById('risk-summary').value;
+				var assessmentSummary = document.getElementById('assessment-summary').value;
+				//var fraudDecision = document.getElementById('fraud-decision').value;
+				//var policyDecision = document.getElementById('policy-decision').value;
+				var transactionLabel = document.getElementById('transaction-label').value;
+
+				// For Inbound
+				var inboundSendingCorridor = document.getElementById('inbound-sending-corridor').value;
+				var inboundReceivingCorridor = document.getElementById('inbound-receiving-corridor').value;
+				var inboundKountRule = document.getElementById('inbound-kount-rule').value;
+				var inboundQueue = document.getElementById('inbound-queue').value;
+				var inboundFirstTouch = document.getElementById('inbound-first-touch').value;
+				var inboundNatureOfConcern = document.getElementById('inbound-nature-of-concern').value;
+				var inboundSiftScore = document.getElementById('inbound-sift-score').value;
+				var inboundDvidIpadInfo = document.getElementById('inbound-dvid-ipad-info').value;
+				var inboundSenderInfo = document.getElementById('inbound-sender-info').value;
+				var inboundReceiverInfo = document.getElementById('inbound-receiver-info').value;
+				var inboundExternalLinks = document.getElementById('inbound-external-links').value;
+				var inboundEmail = document.getElementById('inbound-email').value;
+				var inboundPhone = document.getElementById('inbound-phone').value;
+				var inboundTransactionDetails = document.getElementById('inbound-transaction-details').value;
+				var inboundPaymentProfile = document.getElementById('inbound-payment-profile').value;
+				var inboundAccountHistory = document.getElementById('inbound-account-history').value;
+				var inboundLinknedAccounts = document.getElementById('inbound-linked-accounts').value;
+				var inboundRiskSummary = document.getElementById('inbound-risk-summary').value;
+
+				if(riskGroup == "RISK BACKOFFICE ANNOTATIONS"){
+					document.getElementById('risk-group-modal').style.display = "block";
+					document.getElementById('risk-group-modal').innerHTML = "***Risk Backoffice Annotations***<br><br>";
+				}
+
+				else if(riskGroup == "RISK INBOUND ANNOTATIONS"){
+					document.getElementById('risk-group-modal').style.display = "block";
+					document.getElementById('risk-group-modal').innerHTML = "***Risk Inbound Annotations***<br><br>";
+				}
+
+				else if(riskGroup == "FRAUD SQUAD ANNOTATIONS"){
+					document.getElementById('risk-group-modal').style.display = "block";
+					document.getElementById('risk-group-modal').innerHTML = "***Fraud Squad Annotations***<br><br>";
+				}
+
+				else {
+					document.getElementById('risk-group-modal').style.display = "none";
+				}
+
+				if(defaultRiskInstructions.length > 0){
+					document.getElementById('default-risk-instructions-modal').style.display = "block";
+					document.getElementById('default-risk-instructions-modal').innerHTML = defaultRiskInstructions + "<br>";
+				}
+
+				else {
+					document.getElementById('default-risk-instructions-modal').style.display = "none";
+				}
+				
+				if(sendingCorridor.length > 0){
+					document.getElementById('sending-corridor-modal').style.display = "inline";
+					document.getElementById('sending-corridor-modal').innerHTML = sendingCorridor;
+					//document.getElementById('receiving-corridor-modal').style.display = "inline";
+					//document.getElementById('receiving-corridor-modal').innerHTML = receivingCorridor;
+					document.getElementById('inbound-sending-corridor-modal').style.display = "none";
+					document.getElementById('inbound-sending-corridor-modal').innerHTML = "";
+					//document.getElementById('inbound-receiving-corridor-modal').style.display = "none";
+					//document.getElementById('inbound-receiving-corridor-modal').innerHTML = "none";
+				}
+
+				else {
+					document.getElementById('sending-corridor-modal').style.display = "none";
+				}
+
+				if(receivingCorridor.length > 0) {
+					//document.getElementById('sending-corridor-modal').style.display = "inline";
+					//document.getElementById('sending-corridor-modal').innerHTML = sendingCorridor;
+					document.getElementById('receiving-corridor-modal').style.display = "inline";
+					document.getElementById('receiving-corridor-modal').innerHTML = receivingCorridor;
+					//document.getElementById('inbound-sending-corridor-modal').style.display = "none";
+					//document.getElementById('inbound-sending-corridor-modal').innerHTML = "";
+					document.getElementById('inbound-receiving-corridor-modal').style.display = "none";
+					document.getElementById('inbound-receiving-corridor-modal').innerHTML = "none";
+				}
+
+				else {
+					document.getElementById('receiving-corridor-modal').style.display = "none";
+				}
+
+				if(inboundSendingCorridor.length > 0) {
+					document.getElementById('inbound-sending-corridor-modal').style.display = "inline";
+					document.getElementById('inbound-sending-corridor-modal').innerHTML = inboundSendingCorridor;
+					//document.getElementById('inbound-receiving-corridor-modal').style.display = "inline";
+					//document.getElementById('inbound-receiving-corridor-modal').innerHTML = inboundReceivingCorridor;
+					document.getElementById('sending-corridor-modal').style.display = "none";
+					document.getElementById('sending-corridor-modal').innerHTML = "none";
+					//document.getElementById('receiving-corridor-modal').style.display = "none";
+					//document.getElementById('receiving-corridor-modal').innerHTML = "none";
+				}
+
+				else {
+					document.getElementById('inbound-sending-corridor-modal').style.display = "none";
+				}
+
+				if(inboundReceivingCorridor.length > 0) {
+					//document.getElementById('inbound-sending-corridor-modal').style.display = "inline";
+					//document.getElementById('inbound-sending-corridor-modal').innerHTML = inboundSendingCorridor;
+					document.getElementById('inbound-receiving-corridor-modal').style.display = "inline";
+					document.getElementById('inbound-receiving-corridor-modal').innerHTML = inboundReceivingCorridor;
+					//document.getElementById('sending-corridor-modal').style.display = "none";
+					//document.getElementById('sending-corridor-modal').innerHTML = "none";
+					document.getElementById('receiving-corridor-modal').style.display = "none";
+					document.getElementById('receiving-corridor-modal').innerHTML = "none";
+				}
+
+				else {
+					document.getElementById('inbound-receiving-corridor-modal').style.display = "none";
+				}
+
+				// for backoffice
+				if(kountRule.length > 0){
+					document.getElementById('kount-rule-modal').style.display = "block";
+					document.getElementById('kount-rule-modal').style.color = "red";
+					document.getElementById('kount-rule-modal').innerHTML = "<br>" + kountRule + "<br><br>";
+					document.getElementById('inbound-kount-rule-modal').innerHTML = ""; 
+				}
+
+				else {
+					document.getElementById('kount-rule-modal').style.display = "none";
+				}
+
+				
+
+				if(dvidIpadInfo.length > 0){
+					document.getElementById('dvid-ipad-info-modal').style.display = "block";
+					document.getElementById('dvid-ipad-info-modal').innerHTML = dvidIpadInfo;
+				}
+
+				else {
+					document.getElementById('dvid-ipad-info-modal').style.display = "none";
+				}
+
+				if(receiverInformation.length > 0){
+					document.getElementById('receiver-information-modal').style.display = "block";
+					document.getElementById('receiver-information-modal').innerHTML = receiverInformation;
+				}
+
+				else {
+					document.getElementById('receiver-information-modal').style.display = "none";
+				}
+
+				if(kycStatus.length > 0){
+					document.getElementById('kyc-status-modal').style.display = "block";
+					document.getElementById('kyc-status-modal').innerHTML = kycStatus;
+				}
+
+				else {
+					document.getElementById('kyc-status-modal').style.display = "none";
+				}
+
+				if(siftScore > 0 && siftScore <= 19.99){
+                    document.getElementById('sift-score-modal').style.display = "block";
+                    document.getElementById('sift-score-modal').style.color = "black";
+                    document.getElementById('sift-score-modal').innerHTML = "Account has a very low sift score at " + siftScore + ".<br>";
+                }
+                
+                else if(siftScore > 19.99 && siftScore <= 39.99){
+                    document.getElementById('sift-score-modal').style.display = "block";
+                    document.getElementById('sift-score-modal').style.color = "black";
+                    document.getElementById('sift-score-modal').innerHTML = "Account has a low sift score at " + siftScore + ".<br>";
+                }
+                
+                else if(siftScore > 39.99 && siftScore <= 59.99){
+                    document.getElementById('sift-score-modal').style.display = "block";
+                    document.getElementById('sift-score-modal').style.color = "black";
+                    document.getElementById('sift-score-modal').innerHTML = "Account has a moderate sift score at " + siftScore + ".<br>";    
+                }
+
+                else if(siftScore > 59.99 && siftScore <= 79.99){
+                    document.getElementById('sift-score-modal').style.display = "block";
+                    document.getElementById('sift-score-modal').style.color = "red";
+                    document.getElementById('sift-score-modal').innerHTML = "Account has a high sift score at " + siftScore + ".<br>";
+                }
+
+                else if(siftScore > 79.99 && siftScore <= 100){
+                    document.getElementById('sift-score-modal').style.display = "block";
+                    document.getElementById('sift-score-modal').style.color = "red";
+                    document.getElementById('sift-score-modal').innerHTML = "Account has a very high sift score at " + siftScore + ".<br>";
+                }
+
+				else {
+					document.getElementById('sift-score-modal').style.display = "none";
+				}
+
+				if(customerType.length > 0){
+					document.getElementById('customer-type-modal').style.display = "block";
+					document.getElementById('customer-type-modal').innerHTML = customerType;
+				}
+
+				else{
+					document.getElementById('customer-type-modal').style.display = "none";
+				}
+
+				if(emailAddress.length > 0){
+					document.getElementById('email-address-modal').style.display = "block";
+					document.getElementById('email-address-modal').innerHTML = emailAddress;
+				}
+
+				else {
+					document.getElementById('email-address-modal').style.display = "none";
+				}
+
+				if(phoneNumber.length > 0){
+					document.getElementById('phone-registered-modal').style.display = "block";
+					document.getElementById('phone-registered-modal').innerHTML = phoneNumber;
+				}
+
+				else {
+					document.getElementById('phone-registered-modal').style.display = "none";
+				}
+
+				if(idProvided.length > 0){
+					document.getElementById('id-document-modal').style.display = "block";
+					document.getElementById('id-document-modal').innerHTML = idProvided;
+				}
+
+				else{
+					document.getElementById('id-document-modal').style.display = "none";
+				}
+
+				if(poaProvided.length > 0){
+					document.getElementById('poa-document-modal').style.display = "block";
+					document.getElementById('poa-document-modal').innerHTML = poaProvided;
+				}
+
+				else {
+					document.getElementById('poa-document-modal').style.display = "none";
+				}
+
+				if(proofOfFunds.length > 0){
+					document.getElementById('funds-source-modal').style.display = "block";
+					document.getElementById('funds-source-modal').innerHTML = proofOfFunds;
+				}
+
+				else {
+					document.getElementById('funds-source-modal').style.display = "none";
+				}
+
+				if(externaLinks.length > 0){
+					document.getElementById('external-links-modal').style.display = "block";
+					document.getElementById('external-links-modal').innerHTML = externaLinks;
+				}
+
+				else {
+					document.getElementById('external-links-modal').style.display = "none";
+				}
+
+				if(transactionDetails.length > 0){
+					document.getElementById('transaction-details-modal').style.display = "block";
+					document.getElementById('transaction-details-modal').innerHTML = transactionDetails;
+				}
+
+				else {
+					document.getElementById('transaction-details-modal').style.display = "none";
+				}
+
+				if(paymentProfile.length > 0){
+					document.getElementById('payment-profile-modal').style.display = "block";
+					document.getElementById('payment-profile-modal').innerHTML = paymentProfile;
+				}
+
+				else {
+					document.getElementById('payment-profile-modal').style.display = "none";
+				}
+
+				if(accountChanges.length > 0){
+					document.getElementById('account-changes-modal').style.display = "block";
+					document.getElementById('account-changes-modal').innerHTML = accountChanges;
+				}
+
+				else {
+					document.getElementById('account-changes-modal').style.display = "none";
+				}
+				
+				if(linkedAccount.length > 0){
+					document.getElementById('linked-account-modal').style.display = "block";
+					document.getElementById('linked-account-modal').innerHTML = linkedAccount;
+				}
+
+				else {
+					document.getElementById('linked-account-modal').style.display = "none";
+				}
+
+				if(riskSummary.length > 0){
+					document.getElementById('risk-summary-modal').style.display = "block";
+					document.getElementById('risk-summary-modal').innerHTML = riskSummary;
+				}
+
+				else {
+					document.getElementById('risk-summary-modal').style.display = "none";
+				}
+
+				if(assessmentSummary.length > 0){
+					document.getElementById('assessment-summary-modal').style.display = "block";
+					document.getElementById('assessment-summary-modal').innerHTML = "<br>" + assessmentSummary + "<br>";
+				}
+
+				else {
+					document.getElementById('assessment-summary-modal').style.display = "none";
+				}
+				/*
+				if(fraudDecision.length > 0){
+					document.getElementById('fraud-decision-modal').style.display = "block";
+					document.getElementById('fraud-decision-modal').innerHTML = fraudDecision;
+				}
+
+				else {
+					document.getElementById('fraud-decision-modal').style.display = "none";
+				}
+
+				if(policyDecision.length > 0){
+					document.getElementById('policy-decision-modal').style.display = "block";
+					document.getElementById('policy-decision-modal').innerHTML = policyDecision;
+				}
+
+				else {
+					document.getElementById('policy-decision-modal').style.display = "none";
+				}
+				*/
+
+				if(transactionLabel.includes("Suspending")){
+					document.getElementById('transaction-label-modal').style.display = "block";
+					document.getElementById('transaction-label-modal').innerHTML = "<br>" + transactionLabel;
+					document.getElementById('vip-alert').style.display = "block";
+				}
+
+				else if(transactionLabel.length > 0){
+					document.getElementById('transaction-label-modal').style.display = "block";
+					document.getElementById('transaction-label-modal').innerHTML = "<br>" + transactionLabel;
+					document.getElementById('vip-alert').style.display = "none";
+				}
+
+				else {
+					document.getElementById('transaction-label-modal').style.display = "none";
+				}
+
+				// for inbound Kount Rule
+				if(inboundKountRule.length > 0){
+					document.getElementById('inbound-kount-rule-modal').style.display = "block";
+					document.getElementById('inbound-kount-rule-modal').style.color = "red";
+					document.getElementById('inbound-kount-rule-modal').innerHTML = "<br>" + inboundKountRule + "<br><br>";
+					document.getElementById('kount-rule-modal').innerHTML = ""; 
+				}
+
+				else {
+					document.getElementById('inbound-kount-rule-modal').style.display = "none";
+				}
+
+				if(inboundQueue.length > 0){
+					document.getElementById('inbound-queue-modal').style.display = "block";
+					document.getElementById('inbound-queue-modal').innerHTML = inboundQueue;
+				}
+
+				else {
+					document.getElementById('inbound-queue-modal').style.display = "none";
+				}
+
+				if(inboundFirstTouch.length > 0){
+					document.getElementById('inbound-first-touch-modal').style.display = "block";
+					document.getElementById('inbound-first-touch-modal').innerHTML = "Account has been initially reviewed by <strong>" + inboundFirstTouch + "</strong>.";
+				}
+
+				else {
+					document.getElementById('inbound-first-touch-modal').style.display = "none";
+				}
+
+				if(inboundNatureOfConcern.length > 0){
+					document.getElementById('inbound-nature-of-concern-modal').style.display = "block";
+					document.getElementById('inbound-nature-of-concern-modal').innerHTML = inboundNatureOfConcern;
+				}
+
+				else {
+					document.getElementById('inbound-nature-of-concern-modal').style.display = "none";
+				}
+
+				if(inboundSiftScore > 0 && inboundSiftScore <= 19.99){
+                    document.getElementById('inbound-sift-score-modal').style.display = "block";
+                    document.getElementById('inbound-sift-score-modal').style.color = "black";
+                    document.getElementById('inbound-sift-score-modal').innerHTML = "Account has a very low sift score at " + inboundSiftScore + ".<br>";
+                }
+                
+                else if(inboundSiftScore > 19.99 && inboundSiftScore <= 39.99){
+                    document.getElementById('inbound-sift-score-modal').style.display = "block";
+                    document.getElementById('inbound-sift-score-modal').style.color = "black";
+                    document.getElementById('inbound-sift-score-modal').innerHTML = "Account has a low sift score at " + inboundSiftScore + ".<br>";
+                }
+                
+                else if(inboundSiftScore > 39.99 && inboundSiftScore <= 59.99){
+                    document.getElementById('inbound-sift-score-modal').style.display = "block";
+                    document.getElementById('inbound-sift-score-modal').style.color = "black";
+                    document.getElementById('inbound-sift-score-modal').innerHTML = "Account has a moderate sift score at " + inboundSiftScore + ".<br>";    
+                }
+
+                else if(inboundSiftScore > 59.99 && inboundSiftScore <= 79.99){
+                    document.getElementById('inbound-sift-score-modal').style.display = "block";
+                    document.getElementById('inbound-sift-score-modal').style.color = "red";
+                    document.getElementById('inbound-sift-score-modal').innerHTML = "Account has a high sift score at " + inboundSiftScore + ".<br>";
+                }
+
+                else if(inboundSiftScore > 79.99 && inboundSiftScore <= 100){
+                    document.getElementById('inbound-sift-score-modal').style.display = "block";
+                    document.getElementById('inbound-sift-score-modal').style.color = "red";
+                    document.getElementById('inbound-sift-score-modal').innerHTML = "Account has a very high sift score at " + inboundSiftScore + ".<br>";
+                }
+
+				else {
+					document.getElementById('inbound-sift-score-modal').style.display = "none";
+				}
+
+				if(inboundDvidIpadInfo.length > 0){
+					document.getElementById('inbound-dvid-ipad-info-modal').style.display = "block";
+					document.getElementById('inbound-dvid-ipad-info-modal').innerHTML = inboundDvidIpadInfo;
+				}
+
+				else {
+					document.getElementById('inbound-dvid-ipad-info-modal').style.display = "none";
+				}
+
+				if(inboundSenderInfo.length > 0){
+					document.getElementById('inbound-sender-info-modal').style.display = "block";
+					document.getElementById('inbound-sender-info-modal').innerHTML = inboundSenderInfo;
+				}
+
+				else {
+					document.getElementById('inbound-sender-info-modal').style.display = "none";
+				}
+
+				if(inboundReceiverInfo.length > 0){
+					document.getElementById('inbound-receiver-info-modal').style.display = "block";
+					document.getElementById('inbound-receiver-info-modal').innerHTML = inboundReceiverInfo;
+				}
+
+				else {
+					document.getElementById('inbound-receiver-info-modal').style.display = "none";
+				}
+
+				if(inboundExternalLinks.length > 0){
+					document.getElementById('inbound-external-links-modal').style.display = "block";
+					document.getElementById('inbound-external-links-modal').innerHTML = inboundExternalLinks;
+				}
+
+				else {
+					document.getElementById('inbound-external-links-modal').style.display = "none";
+				}
+
+				if(inboundEmail.length > 0){
+					document.getElementById('inbound-email-modal').style.display = "block";
+					document.getElementById('inbound-email-modal').innerHTML = inboundEmail;
+				}
+
+				else {
+					document.getElementById('inbound-email-modal').style.display = "none";
+				}
+
+				if(inboundPhone.length > 0){
+					document.getElementById('inbound-phone-modal').style.display = "block";
+					document.getElementById('inbound-phone-modal').innerHTML = inboundPhone;
+				}
+
+				else {
+					document.getElementById('inbound-phone-modal').style.display = "none";
+				}
+
+				if(inboundTransactionDetails.length > 0){
+					document.getElementById('inbound-transaction-details-modal').style.display = "block";
+					document.getElementById('inbound-transaction-details-modal').innerHTML = inboundTransactionDetails;
+				}
+
+				else {
+					document.getElementById('inbound-transaction-details-modal').style.display = "none";
+				}
+
+				if(inboundPaymentProfile.length > 0){
+					document.getElementById('inbound-payment-profile-modal').style.display = "block";
+					document.getElementById('inbound-payment-profile-modal').innerHTML = inboundPaymentProfile;
+				}
+
+				else {
+					document.getElementById('inbound-payment-profile-modal').style.display = "none";
+				}
+
+				if(inboundAccountHistory.length > 0){
+					document.getElementById('inbound-account-history-modal').style.display = "block";
+					document.getElementById('inbound-account-history-modal').innerHTML = inboundAccountHistory;
+				}
+
+				else {
+					document.getElementById('inbound-account-history-modal').style.display = "none";
+				}
+
+				if(inboundLinknedAccounts.length > 0){
+					document.getElementById('inbound-linked-accounts-modal').style.display = "block";
+					document.getElementById('inbound-linked-accounts-modal').innerHTML = inboundLinknedAccounts;
+				}
+
+				else {
+					document.getElementById('inbound-linked-accounts-modal').style.display = "none";
+				}
+
+				if(inboundRiskSummary.length > 0){
+					document.getElementById('inbound-risk-summary-modal').style.display = "block";
+					document.getElementById('inbound-risk-summary-modal').innerHTML = inboundRiskSummary;
+				}
+
+				else {
+					document.getElementById('inbound-risk-summary-modal').style.display = "none";
+				}
+			}
+		</script>
+		<script type="text/javascript">
+			function refresh() {
+            	location.reload();
+        }
+        	function refreshPage () {
+            	return "All data that you have entered will be lost!";
+        }
+		</script>
+</body>
+</html>
